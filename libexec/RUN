@@ -7,4 +7,7 @@ set -euo pipefail
 : ${DKR_CONTAINER:?}
 [[ $# -gt 0 ]] || usage "$0" "Missing COMMAND"
 
-exec docker exec "$DKR_CONTAINER" "$@"
+exec docker exec "$DKR_CONTAINER" \
+    env \
+        LANG="${LANG:-}" \
+    "$@"

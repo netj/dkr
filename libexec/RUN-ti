@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# RUN-ti -- Runs given command in the container interactively attached to a tty
+# RUN-ti -- Runs given command in the container interactively in a tty
 # $ RUN-ti COMMAND [ARG...]
 ##
 set -euo pipefail
@@ -11,6 +11,8 @@ set -euo pipefail
 # FIXME This is Linux-specific, some flags for script(1) may fail against BSD containers (e.g., -e)
 # See: https://github.com/docker/docker/issues/8755
 # See: https://github.com/docker/docker/issues/728
-exec docker exec --tty --interactive "$DKR_CONTAINER" env \
-    TERM="${TERM:-}" \
-    script -qec "$(@sh "$@")" /dev/null
+exec docker exec --tty --interactive "$DKR_CONTAINER" \
+    env \
+        TERM="${TERM:-}" \
+        LANG="${LANG:-}" \
+    script -qec "$(@sh exec "$@")" /dev/null
