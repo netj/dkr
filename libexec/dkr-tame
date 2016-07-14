@@ -25,7 +25,15 @@ dkr-tame-APT() {
 
     # install some essential packages
     RUN-ti apt-get update
-    RUN-ti apt-get install -qy "$@" $DKR_TAME_APT_PACKAGES tmux vim git sudo
+    RUN-ti apt-get install -qy \
+        "$@" \
+        $DKR_TAME_APT_PACKAGES \
+        sudo \
+        bash-completion \
+        tmux \
+        git \
+        vim \
+        #
 
     # add non-root DKR_USER
     if ! RUN id $DKR_USER &>/dev/null; then
