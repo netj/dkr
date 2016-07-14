@@ -43,6 +43,7 @@ type dkr-tame-"$uname" &>/dev/null || # allow customization
     eval "dkr-tame-$uname() { echo >&2 'NOTE extra taming can be done by dkr-tame-$uname command or function in ~/.dkrrc'; }"
 
 distro=$(RUN lsb_release --short --id 2>/dev/null) ||
+distro=$(RUN bash -euc '. /etc/lsb-release && echo $DISTRIB_ID') ||
     if RUN which apt-get &>/dev/null; then distro=Debian
     elif RUN which yum &>/dev/null; then distro=RedHat
     # TODO add more ways detecting OS distros
