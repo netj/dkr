@@ -12,7 +12,7 @@ set -euo pipefail
 # See: https://github.com/docker/docker/issues/8755
 # See: https://github.com/docker/docker/issues/728
 exec docker exec --tty --interactive "$DKR_CONTAINER" \
-    script -qec "$(@sh env \
+    env \
         TERM="${TERM:-}" \
         LANG="${LANG:-}" \
-    su "$DKR_USER" -c "$(@sh "$@")")" /dev/null
+    script -qec "$(@sh exec su "$DKR_USER" -c "$(@sh "$@")")" /dev/null
