@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# dkr-hack -- Executes a command within the dkr environment
+# $ dkr hack COMMAND [ARG...]
+#
+# An interactive shell starts if no COMMAND is given.
+# $ dkr hack
+##
+[[ $# -gt 0 ]] || set -- bash --norc -i
+"$@"

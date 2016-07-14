@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# dkr-tmux -- Attaches to a running Docker container using TMUX
+# $ dkr-tmux [CONTAINER]
+##
+set -euo pipefail
+
+. require.DKR_CONTAINER.bash
+
+RUN-uti bash -c '
+    cd
+    if tmux list-window &>/dev/null
+    then exec tmux attach
+    else exec tmux
+    fi
+'

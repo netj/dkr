@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# RUN -- Runs given command in the container, just like in a Dockerfile
+# $ RUN COMMAND [ARG...]
+##
+set -euo pipefail
+
+: ${DKR_CONTAINER:?}
+[[ $# -gt 0 ]] || usage "$0" "Missing COMMAND"
+
+exec docker exec "$DKR_CONTAINER" "$@"

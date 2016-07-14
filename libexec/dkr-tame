@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# dkr-tame -- Installs essential stuffs to a Docker container
+# $ dkr-tame [CONTAINER]
+##
+set -euo pipefail
+
+: ${DKR_TAME_APT_SOURCE:=} ${DKR_TAME_APT_PACKAGES:=}
+
+. require.DKR_CONTAINER.bash
+
+# source user's run-command file again for the functions
+! [[ -r ~/.dkrrc ]] || . ~/.dkrrc
+
+# how to tame Debian/Ubuntu
+dkr-tame-APT() {
+    (
+    set -x
+
+    # configure essential stuffs for `dkr tmux` and `dkr hack RUN-ti` to work
+    RUN locale-gen ${LANG:-}
+
+    # ensure resolveconf doesn't fail
+    # See: https://github.com/docker/docker/issues/1297#issuecomment-115458690
+    RUN sh -c 'echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections'
+
+    # install some essential packages
+    RUN-ti apt-get update
+    RUN-ti apt-get install -qy "$@" $DKR_TAME_APT_PACKAGES tmux vim git sudo
+
+    # add non-root DKR_USER
+    if ! RUN id $DKR_USER &>/dev/null; then
+        RUN adduser --disabled-password --gecos '' $DKR_USER
+        RUN adduser $DKR_USER adm
+        RUN adduser $DKR_USER sudo
+        RUN sh -c "echo '$DKR_USER   ALL=(ALL:ALL) NOPASSWD: ALL' | tee -a /etc/sudoers"
+    fi
+    )
+}
+
+# tame container based on detected OS/distro
+uname=$(RUN uname)
+type dkr-tame-"$uname" &>/dev/null || # allow customization
+    eval "dkr-tame-$uname() { echo >&2 'NOTE extra taming can be done by dkr-tame-$uname command or function in ~/.dkrrc'; }"
+
+distro=$(RUN lsb_release --short --id 2>/dev/null) ||
+    if RUN which apt-get &>/dev/null; then distro=Debian
+    elif RUN which yum &>/dev/null; then distro=RedHat
+    # TODO add more ways detecting OS distros
+    else distro=
+    fi
+case $distro in
+    Debian)
+        [[ -z $DKR_TAME_APT_SOURCE ]] || # use a local APT mirror
+            RUN sed -i~ 's#\(deb.*\) http://httpredir.debian.org/#\1 '"$DKR_TAME_APT_SOURCE"'/#' /etc/apt/sources.list
+        dkr-tame-APT \
+            #
+        dkr-tame-$uname
+        ;;
+
+    Ubuntu)
+        [[ -z $DKR_TAME_APT_SOURCE ]] || # use a local APT mirror
+            RUN sed -i~ 's#\(deb.*\) http://archive.ubuntu.com/#\1 '"$DKR_TAME_APT_SOURCE"'/#' /etc/apt/sources.list
+        dkr-tame-APT \
+            ubuntu-minimal \
+            software-properties-common \
+            python-software-properties \
+            #
+        dkr-tame-$uname
+        ;;
+
+    # TODO support more distros?
+
+    *)
+        error "$distro: $uname: don't know how to tame"
+esac

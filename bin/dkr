@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# dkr -- a shorthand for using Docker
+# $ dkr COMMAND [ARG...]
+##
+set -euo pipefail
+
+Self=$(python -c 'import sys,os.path; print(os.path.realpath(sys.argv[1]))' "$0")
+export PATH="$(dirname "$Self")/../libexec:$PATH"
+
+# source user's run-command file
+! [[ -r ~/.dkrrc ]] || . ~/.dkrrc
+# export a bunch of configurable environment variables with defaults
+: ${DKR_USER:=root}
+export \
+    DKR_USER \
+    DKR_TAME_APT_SOURCE \
+    DKR_TAME_APT_PACKAGES \
+    #
+
+exec delegate-command "dkr-%s" "$0" "$@"

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# dkr-choose -- Asks user to choose a Docker container
+##
+set -euo pipefail
+containerWithNames=$(
+    : ${PS3:=CONTAINER#? }
+    PS3=$PS3 choose docker ps --format '{{.ID}} ({{.Names}})' "$@"
+)
+
+echo "echo >&2 $(@sh "dkr: using container $containerWithNames");"
+DKR_CONTAINER=$(
+    awk '{print $1}' <<<"$containerWithNames" # drop everything except the ID in the first column
+)
+echo "export DKR_CONTAINER=$(@sh "$DKR_CONTAINER")"

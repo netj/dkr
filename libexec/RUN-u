@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# RUN-u -- Runs given command in the container as $DKR_USER with locale
+# $ DKR_USER=$USER  RUN-u COMMAND [ARG...]
+##
+set -euo pipefail
+
+: ${DKR_CONTAINER:?} ${DKR_USER:?}
+[[ $# -gt 0 ]] || usage "$0" "Missing COMMAND"
+
+exec docker exec "$DKR_CONTAINER" /bin/sh -c "$(@sh exec env \
+    LANG="${LANG:-}" \
+    exec su "$DKR_USER" -c "$(@sh "$@")"
+)"

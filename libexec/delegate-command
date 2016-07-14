@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# delegate-command -- Delegates commands
+# $ exec delegate-command HANDLER_NAME_FORMAT FACADE_PATH COMMAND [ARG...]
+#
+# Typical invocation from a facade script will look like:
+# $ exec delegate-command "facade-%s" "$0" "$@"
+# where a facade `foo` can now easily delegate the execution of `foo bar` to a
+# separate command foo-bar.
+##
+set -euo pipefail
+
+[[ $# -gt 0 ]] || usage "$0" "Missing HANDLER_NAME_FORMAT"
+HandlerNameFormat=$1; shift
+[[ $# -gt 0 ]] || usage "$0" "Missing FACADE_PATH"
+FacadePathForUsage=$1; shift
+[[ $# -gt 0 ]] || usage "$FacadePathForUsage" "Missing COMMAND"
+Command=$1; shift
+
+handler=$(printf "$HandlerNameFormat" "$Command")
+if [[ -x "$handler" ]] || type "$handler" &>/dev/null; then
+    exec "$handler" "$@"
+else
+    usage "$FacadePathForUsage" "$Command: unrecognized COMMAND"
+fi

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# RUN-ti -- Runs given command in the container interactively attached to a tty
+# $ RUN-ti COMMAND [ARG...]
+##
+set -euo pipefail
+
+: ${DKR_CONTAINER:?} ${DKR_USER:?}
+[[ $# -gt 0 ]] || usage "$0" "Missing COMMAND"
+
+# XXX we need to wrap script(1) around commands to get a sane tty
+# FIXME This is Linux-specific, some flags for script(1) may fail against BSD containers (e.g., -e)
+# See: https://github.com/docker/docker/issues/8755
+# See: https://github.com/docker/docker/issues/728
+exec docker exec --tty --interactive "$DKR_CONTAINER" \
+    script -qec "$(@sh env \
+        TERM="${TERM:-}" \
+        LANG="${LANG:-}" \
+    su "$DKR_USER" -c "$(@sh "$@")")" /dev/null

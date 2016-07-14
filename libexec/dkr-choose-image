@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# dkr-choose-image -- Asks user to choose a Docker image
+##
+set -euo pipefail
+DKR_IMAGE=$(choose docker images --format '{{.Repository}}:{{.Tag}}' "$@")
+echo "export DKR_IMAGE=$(@sh "$DKR_IMAGE")"

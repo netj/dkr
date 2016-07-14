@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# dkr-rm -- Kills and removes a running Docker container quickly/easily
+# $ dkr-rm [CONTAINER...]
+##
+set -euo pipefail
+
+nargs=$#
+
+while [[ $nargs -eq 0 || $# -gt 0 ]]; do
+    unset DKR_CONTAINER
+    PS3='dkr rm #? ' . require.DKR_CONTAINER.bash
+    [[ -n ${DKR_CONTAINER:-} ]] || break
+    ( set +e -x
+    docker kill "$DKR_CONTAINER"
+    docker rm   "$DKR_CONTAINER"
+    )
+done

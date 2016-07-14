@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# dkr-run -- Runs a new Docker Container quickly/easily
+# $ dkr-run [REPOSITORY[:TAG]] [DOCKER_RUN_OPTS...]
+##
+set -euo pipefail
+
+. require.DKR_IMAGE.bash
+
+# default options for docker run
+DKR_RUN_OPTS=(
+    # XXX override some DNS options as "search local" included in Docker for Mac's default can cause latency
+    --dns 8.8.8.8 --dns 8.8.4.4
+    --dns-search "$(grep 'search\|domain' /etc/resolv.conf | cut -f 2- -d' ')"
+)
+[[ $# -gt 0 ]] || set -- "${DKR_RUN_OPTS[@]}"
+
+# start a new container
+DKR_CONTAINER=$(docker run --detach --tty --interactive "$@" "$DKR_IMAGE")
+export DKR_CONTAINER
+
+# print a shell script that sets up the environment for subsequent dkr commands
+names=$(docker ps --format '{{.Names}}' --filter ID="$DKR_CONTAINER" | head -1)
+echo "echo >&2 $(@sh "dkr: started ${DKR_CONTAINER:0:12} ($names)");"
+echo "export DKR_CONTAINER=$(@sh "$DKR_CONTAINER")"
