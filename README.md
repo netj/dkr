@@ -2,6 +2,20 @@
 
 ## Synopsis
 
+```bash
+eval $(dkr choose)
+dkr tmux
+dkr hack RUN ps axf
+dkr hack RUN-ti vim
+
+eval $(dkr run ubuntu)
+dkr tame
+dkr tmux
+dkr rm
+```
+
+### Shorthands
+
 * `dkr tmux [CONTAINER]`
     Launches TMUX in your container.
 
