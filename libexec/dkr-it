@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# dkr-it -- Attaches to a running Docker container using an interactive shell
+# $ dkr-it [COMMAND [ARG...]]
+##
+set -euo pipefail
+
+. require.DKR_CONTAINER.bash "${DKR_CONTAINER:-}"
+
+[[ $# -gt 0 ]] || set -- bash -i
+
+exec RUN-ti "$@"
