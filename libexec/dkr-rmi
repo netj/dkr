@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# dkr-rmi -- Removes Docker images quickly/easily
+# $ dkr-rm [CONTAINER...]
+##
+set -euo pipefail
+
+nargs=$#
+
+while [[ $nargs -eq 0 || $# -gt 0 ]]; do
+    unset DKR_IMAGE
+    PS3='dkr rmi #? ' . require.DKR_IMAGE.bash
+    [[ -n ${DKR_IMAGE:-} ]] || break
+    ( set +e -x
+    docker rmi "$DKR_IMAGE"
+    )
+done
