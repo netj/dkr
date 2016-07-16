@@ -8,7 +8,7 @@ nargs=$#
 
 while [[ $nargs -eq 0 || $# -gt 0 ]]; do
     unset DKR_CONTAINER
-    PS3='dkr rm #? ' . require.DKR_CONTAINER.bash
+    PS3='dkr rm #? ' . require.DKR_CONTAINER.bash '' -a
     [[ -n ${DKR_CONTAINER:-} ]] || break
     ( set +e -x
     docker kill "$DKR_CONTAINER"
