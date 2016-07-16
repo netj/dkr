@@ -2,5 +2,10 @@
 # dkr-choose-image -- Asks user to choose a Docker image
 ##
 set -euo pipefail
-DKR_IMAGE=$(choose docker images --format '{{.Repository}}:{{.Tag}}' "$@")
+imageWithRepositoryTag=$(choose docker images --format '{{.ID}} {{.Repository}}:{{.Tag}}' "$@")
+
+echo "echo >&2 $(@sh "dkr: using image $imageWithRepositoryTag");"
+DKR_IMAGE=$(
+    awk '{print $1}' <<<"$imageWithRepositoryTag" # drop everything except the ID in the first column
+)
 echo "export DKR_IMAGE=$(@sh "$DKR_IMAGE")"
