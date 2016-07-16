@@ -3,3 +3,5 @@
         : ${PS3:="$(sed 's/^dkr-/dkr /' <<<"${0##*/}") IMAGE#? "}
         PS3=$PS3 dkr-choose-image
     )
+[[ -n ${DKR_IMAGE:-} ]] ||
+    error "No image available"
